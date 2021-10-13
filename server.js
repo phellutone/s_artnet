@@ -17,7 +17,7 @@ const wss = new Server({ server: httpServer })
 var dmxlib = require('dmxnet')
 var dmxnet = new dmxlib.dmxnet({
   log: {
-    level: 'debug'
+    level: 'info'
   },
   oem: 0,
   sName: 'artnetServer',
@@ -60,7 +60,14 @@ artnetClientList format
 var artnetClientList = []
 
 var oscServer = null
-var artnetServer = null
+var artnetServer = dmxnet.newReceiver({
+  subnet: 0,
+  universe: 0,
+  net: 0
+})
+artnetServer.on('data', data => {
+  console.log(data)
+})
 
 wss.on('connection', (ws, req) => {
   console.log('connected '+req.headers)
