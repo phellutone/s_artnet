@@ -1,0 +1,18 @@
+{
+  "name": "s_artnet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dmxnet": "^0.8.0",
+    "express": "^4.17.1",
+    "node-osc": "^6.1.7",
+    "ws": "^8.2.3"
+  }
+}
