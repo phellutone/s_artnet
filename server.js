@@ -4,8 +4,6 @@
 const { Client } = require('node-osc')
 const { Server } = require('ws')
 const express = require('express')
-var dmxlib = require('dmxnet')
-var dmxnet = new dmxlib.dmxnet()
 
 const HOST = 'localhost'
 const PORT = process.env.PORT || 3000
@@ -14,7 +12,20 @@ const INDEX = '/index.html'
 const httpServer = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
   .listen(PORT, () => console.log(`listening on ${PORT}`))
-const wss = new Server({ sever: httpServer })
+const wss = new Server({ server: httpServer })
+
+var dmxlib = require('dmxnet')
+var dmxnet = new dmxlib.dmxnet({
+  log: {
+    level: 'debug'
+  },
+  oem: 0,
+  sName: 'artnetServer',
+  lName: 'Art-Net routing server',
+  hosts: [
+    HOST
+  ]
+})
 
 /*
 oscClientList format
