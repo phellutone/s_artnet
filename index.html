@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <button id="list">list</button>
+    <p>
+      host
+      <input type="text" id="host">
+    </p>
+    <p>
+      port
+      <input type="number" id="port">
+    </p>
+    <p>
+      address
+      <input type="text" id="address">
+    </p>
+    <p>
+      subnet
+      <input type="number" id="subnet">
+      universe
+      <input type="number" id="universe">
+      net
+      <input type="number" id="net">
+    </p>
+    <p>
+      type
+      <input type="text" id="type">
+    </p>
+    <button id="add">add</button>
+    <button id="remove">remove</button>
+    <br>
+    <input type="text" id="data">
+    <button id="control">control</button>
+    <br>
+    <div id="msg">ws res</div>
+    <script>
+      var loc = window.location, new_uri
+      if (loc.protocol === "https:") {
+          new_uri = "wss:";
+      } else {
+          new_uri = "ws:";
+      }
+      new_uri += "//"+loc.host+loc.pathname
+      let ws = new WebSocket(new_uri)
+      console.log(ws.url)
+
+      ws.onmessage = event => {
+        document.getElementById("msg").innerHTML = event.data.replace(/\n/g, '<br>')
+      }
+
+      document.getElementById("add").addEventListener("click", () => {
+        var host = document.getElementById("host").value
+        var port = document.getElementById("port").value
+        var address = document.getElementById("address").value
+        var subnet = document.getElementById("subnet").value
+        var universe = document.getElementById("universe").value
+        var net = document.getElementById("net").value
+        var type = document.getElementById("type").value
+
+        var data = []
+        if(type == "osc"){
+          data.push(host)
+          data.push(parseInt(port))
+          data.push(address)
+        }else if(type == "art"){
+          data.push({
+            ip: host,
+            subnet: parseInt(subnet),
+            universe: parseInt(universe),
+            net: parseInt(net),
+            port: parseInt(port),
+            base_refresh_interval: 1000
+          })
+        }
+      })
+    </script>
+  </body>
+</html>
