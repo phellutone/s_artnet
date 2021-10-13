@@ -127,7 +127,7 @@ wss.on('connection', (ws, req) => {
         */
 
         oscClientList.forEach(c => {
-          c.client.send().apply(null, msg.data.unshift('/'+c.address))
+          c.client.send().apply(c.client, msg.data.unshift('/'+c.address))
         })
       }else if(type == 'art'){
 
@@ -141,7 +141,7 @@ wss.on('connection', (ws, req) => {
             {
               channel: 0, //channel to set [0, 511] note: only use 'set | prep'
               min: 0,     //channel to set [0, 511] note: only use 'fill'
-              max 511,    //channel to set [0, 511] note: only use 'fill'
+              max: 511,    //channel to set [0, 511] note: only use 'fill'
               value: 0    //value to set [0, 255]
             }
           ]
@@ -149,7 +149,17 @@ wss.on('connection', (ws, req) => {
         */
 
         artnetClientList.forEach(c => {
-          
+          if(msg.data[0] == 'set'){
+            c.client.setChannel(msg.data[1].channel, msg.data[1].value)
+          }else if(msg.data[0] == 'fill'){
+            c.client.fillChannels(msg.data[1].min, msg.data[1].max, msg.data[1].value)
+          }else if(msg.data[0] == 'prep'){
+            c.client.prepChannel(msg.data[1].channel, msg.data[1].value)
+          }else if(msg.data[0] == 'transmit'){
+            c.client.transmit()
+          }else if(msg.data[0] == 'reset'){
+            c.client.reset()
+          }
         })
       }
     }
