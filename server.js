@@ -221,10 +221,12 @@ wss.on('connection', (ws, req) => {
   })
 
   ws.on('error', err => {
+    console.log('error')
     console.log(err.message)
   })
 
   ws.on('close', (code, reason) => {
+    console.log('close')
     console.log(code)
     console.log(reason)
   })
@@ -235,5 +237,6 @@ wss.on('close', () => {
 })
 
 wss.on('error', err => {
+  console.log('error')
   console.log(err.message)
 })
