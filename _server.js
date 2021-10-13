@@ -116,8 +116,10 @@ wss.on('connection', (ws, req) => {
         }
         */
 
+        var server = dmxnet.newReceiver(msg.data[0])
+        server.on('data', )
         artnetServerList.push({
-          client: dmxnet.newReceiver(msg.data[0]),
+          client: server,
           options: msg.data[0]
         })
       }
