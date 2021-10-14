@@ -1,5 +1,5 @@
 
-const { Server } = require('ws')
+const { WebSocketServer } = require('ws')
 const express = require('express')
 
 const HOST = 'localhost'
@@ -9,7 +9,7 @@ const INDEX = '/index.html'
 const httpServer = express()
   .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
   .listen(PORT, () => console.log(`listening on ${PORT}`))
-const wss = new Server({ server: httpServer})
+const wss = new WebSocketServer({ server: httpServer})
 
 var dmxlib = require('dmxnet')
 var dmxnet = new dmxlib.dmxnet({
@@ -25,6 +25,7 @@ var dmxnet = new dmxlib.dmxnet({
 })
 
 var artnetServerList = []
+var wsClientList = []
 
 
 wss.on('connection', (ws, req) => {
@@ -36,14 +37,30 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', (RawData, isBinary) => {
     var msg = ''
+    var pfx = ''
+    var type = ''
+    var data = []
     try{
       msg = JSON.parse(RawData)
+
+      if(!typeof msg.pfx === 'string') throw new Error('message.prefix is not string')
+      if(!['add', 'control', 'remove'].includes(msg.pfx)) throw new Error('messgage.pfx is valid value')
+      pfx = msg.pfx
+
+      if(!typeof msg.type === 'string') throw new Error('message.type is not string')
+      if(!['ws', 'art'].includes(msg.type)) throw new Error('message.type is valid value')
+      type = msg.type
+
+      if(!msg.data.isArray) throw new Error('message.data is not array')
+      if(msg.data.length == 0) throw new Error('message.data is empty')
+      data = msg.data
     }catch(e){
       console.log(e)
+      return
     }
 
-    if(msg.pfx == 'add'){
-      if(msg.type == 'art'){
+    if(pfx == 'add'){
+      if(type == 'art'){
 
         /*
         {
@@ -60,10 +77,10 @@ wss.on('connection', (ws, req) => {
         }
         */
 
-        var server = dmxnet.newReceiver(msg.data[0])
-        server.on('data', data => {
-          oscClientList.forEach(c => {
-            c.client.send('/'+c.address, data)
+        var server = dmxnet.newReceiver(data[0])
+        server.on('data', dmx => {
+          wsClientList.forEach(c => {
+            c.client.send('/'+c.address, dmx)
           })
         })
         artnetServerList.push({
@@ -83,7 +100,7 @@ wss.on('connection', (ws, req) => {
           ]
         }
         */
-        var wsc = new Server({
+        var wsc = new WebSocketServer({
           
         })
       }
