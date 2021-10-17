@@ -84,7 +84,7 @@ wss.on('connection', (ws, req) => {
         console.log('add art')
         let ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
           //debug
-          ws.send(dmx)
+          ws.send(JSON.stringify(dmx))
           console.log(dmx)
           wsClientList.forEach(c => { c.client.send(sart(dmx)) })
         })
