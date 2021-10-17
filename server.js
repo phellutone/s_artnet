@@ -46,11 +46,9 @@ const sart = dmx => {
 }
 
 wss.on('connection', (ws, req) => {
-  console.log('connected '+req.headers.host)
+  console.log('connected '+req.socket.remoteAddress)
 
-  ws.on('open', () => {
-    console.log('open')
-  })
+  ws.on('open', () => console.log('open'))
 
   ws.on('message', (RawData, isBinary) => {
     /** @param {String} pfx prefix */
@@ -71,17 +69,20 @@ wss.on('connection', (ws, req) => {
       if(!['ws', 'art'].includes(msg.type)) throw new Error('message.type is valid value')
       type = msg.type
 
-      if(!msg.data.isArray) throw new Error('message.data is not array')
+      if(!Array.isArray(msg.data)) throw new Error('message.data is not array')
       if(msg.data.length == 0) throw new Error('message.data is empty')
       data = msg.data
     }catch(e){
       console.log(e)
+      console.log(RawData)
+      console.log(Array.isArray(JSON.parse(RawData).data))
       return
     }
 
     if(pfx == 'add'){
       if(type == 'art'){
-        var ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
+        console.log('add art')
+        let ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
           //debug
           ws.send(dmx)
           wsClientList.forEach(c => { c.client.send(sart(dmx)) })
@@ -91,18 +92,19 @@ wss.on('connection', (ws, req) => {
           options: data[0]
         })
       }else if(type == 'ws'){
-        var wsc = new WebSocket(data[0])
+        console.log('add ws')
+        let wsc = new WebSocket(new URL('ws://'+data[0]))
         wsClientList.push({
           client: wsc,
           address: data[0]
         })
       }
     }
-    if(msg.pfx == 'remove'){
-      if(msg.type == 'art'){
+    if(pfx == 'remove'){
+      if(type == 'art'){
         //TODO
-      }else if(msg.type == 'ws'){
-        //TODO
+      }else if(type == 'ws'){
+        wsClientList = wsClientList.filter(c => c.address != data[0] )
       }
     }
   })
@@ -119,11 +121,9 @@ wss.on('connection', (ws, req) => {
   })
 })
 
-wss.on('close', () => {
-  console.log('server close')
-})
+wss.on('close', () => console.log('server close'))
 
 wss.on('error', err => {
-  console.log('error')
+  console.log('server error')
   console.log(err.message)
 })
