@@ -5,28 +5,26 @@
   <body>
     <button id="list">list</button>
     <p>
-      host
-      <input type="text" id="host">
+      host/port/address
+      <br>
+      <input type="text" id="host" placeholder="192.168.0.0">
+      <input type="number" id="port" min="0" max="65535" placeholder="3000">
+      <input type="text" id="address" placeholder="">
     </p>
     <p>
-      port
-      <input type="number" id="port">
-    </p>
-    <p>
-      address
-      <input type="text" id="address">
-    </p>
-    <p>
-      subnet
-      <input type="number" id="subnet">
-      universe
-      <input type="number" id="universe">
-      net
-      <input type="number" id="net">
+      net/subnet/universe
+      <br>
+      <input type="number" id="net" min="0" max="127" placeholder="0">
+      <input type="number" id="subnet" min="0" max="15" placeholder="0">
+      <input type="number" id="universe" min="0" max="15" placeholder="0">
     </p>
     <p>
       type
-      <input type="text" id="type">
+      <input type="text" id="type" list="defaulttype">
+      <datalist id="defaulttype">
+        <option value="ws">
+        <option value="art">
+      </datalist>
     </p>
     <button id="add">add</button>
     <button id="remove">remove</button>
