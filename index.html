@@ -47,7 +47,7 @@
       console.log(ws.url)
 
       ws.onmessage = event => {
-        document.getElementById("msg").innerHTML = event.data.replace(/\n/g, '<br>')
+        document.getElementById("msg").innerHTML = JSON.parse(event.data)
       }
 
       document.getElementById("add").addEventListener("click", () => {
