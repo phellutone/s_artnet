@@ -3,7 +3,7 @@ const { WebSocketServer, WebSocket } = require('ws')
 const express = require('express')
 
 const HOST = 'localhost'
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000
 const INDEX = '/index.html'
 
 const httpServer = express()
@@ -36,8 +36,17 @@ var artnetServerList = []
  */
 var wsClientList = []
 
+/**
+ * convert dmx to string format sart
+ * @param {} dmx 
+ * @returns {String} sart
+ */
+const sart = dmx => {
+  return ''
+}
+
 wss.on('connection', (ws, req) => {
-  console.log('connected '+req.headers)
+  console.log('connected '+req.headers.host)
 
   ws.on('open', () => {
     console.log('open')
@@ -72,33 +81,49 @@ wss.on('connection', (ws, req) => {
 
     if(pfx == 'add'){
       if(type == 'art'){
-        var server = dmxnet.newReceiver(data[0]).on('data', dmx => {
-          wsClientList.forEach(c => { c.client.send(dmx) })
+        var ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
+          //debug
+          ws.send(dmx)
+          wsClientList.forEach(c => { c.client.send(sart(dmx)) })
         })
         artnetServerList.push({
-          client: server,
+          client: ans,
           options: data[0]
         })
       }else if(type == 'ws'){
-
-        /*
-        {
-          pfx: 'add',
-          type: 'ws',
-          data: [
-            'x.x.x.x:0000/yyy'  //uri to send
-          ]
-        }
-        */
-
-        var wsc = new WebSocket()
-        wsClientList.push(wsc)
+        var wsc = new WebSocket(data[0])
+        wsClientList.push({
+          client: wsc,
+          address: data[0]
+        })
       }
     }
     if(msg.pfx == 'remove'){
       if(msg.type == 'art'){
         //TODO
+      }else if(msg.type == 'ws'){
+        //TODO
       }
     }
   })
+
+  ws.on('close', (code, reason) => {
+    console.log('close')
+    console.log(code)
+    console.log(reason)
+  })
+
+  ws.on('error', err => {
+    console.log('error')
+    console.log(err.message)
+  })
+})
+
+wss.on('close', () => {
+  console.log('server close')
+})
+
+wss.on('error', err => {
+  console.log('error')
+  console.log(err.message)
 })
