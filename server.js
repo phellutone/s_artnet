@@ -74,8 +74,6 @@ wss.on('connection', (ws, req) => {
       data = msg.data
     }catch(e){
       console.log(e)
-      console.log(RawData)
-      console.log(Array.isArray(JSON.parse(RawData).data))
       return
     }
 
