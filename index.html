@@ -60,20 +60,21 @@
         var type = document.getElementById("type").value
 
         var data = []
-        if(type == "osc"){
-          data.push(host)
-          data.push(parseInt(port))
-          data.push(address)
+        if(type == "ws"){
+          data.push(host+":"+port+"/"+address)
         }else if(type == "art"){
           data.push({
-            ip: host,
             subnet: parseInt(subnet),
             universe: parseInt(universe),
             net: parseInt(net),
-            port: parseInt(port),
-            base_refresh_interval: 1000
           })
         }
+
+        ws.send(JSON.stringify({
+          pfx: "add",
+          type: type,
+          data: data
+        }))
       })
     </script>
   </body>
