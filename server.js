@@ -1,5 +1,5 @@
 
-const { WebSocketServer } = require('ws')
+const { WebSocketServer, WebSocket } = require('ws')
 const express = require('express')
 
 const HOST = 'localhost'
@@ -24,9 +24,17 @@ var dmxnet = new dmxlib.dmxnet({
   ]
 })
 
+/**
+ * Art-Net receive server list
+ * @type {Array<{ client: dmxlib.receiver, options: dmxlib.ReceiverOptions }>}
+ */
 var artnetServerList = []
-var wsClientList = []
 
+/**
+ * WebSocket client list
+ * @type {Array<{ client: WebSocket, address: String }>}
+ */
+var wsClientList = []
 
 wss.on('connection', (ws, req) => {
   console.log('connected '+req.headers)
@@ -36,12 +44,15 @@ wss.on('connection', (ws, req) => {
   })
 
   ws.on('message', (RawData, isBinary) => {
-    var msg = ''
-    var pfx = ''
-    var type = ''
-    var data = []
+    /** @param {String} pfx prefix */
+    let pfx = ''
+    /** @param {String} type type */
+    let type = ''
+    /** @param {Array} data data */
+    let data = []
+
     try{
-      msg = JSON.parse(RawData)
+      const msg = JSON.parse(RawData)
 
       if(!typeof msg.pfx === 'string') throw new Error('message.prefix is not string')
       if(!['add', 'control', 'remove'].includes(msg.pfx)) throw new Error('messgage.pfx is valid value')
@@ -61,48 +72,27 @@ wss.on('connection', (ws, req) => {
 
     if(pfx == 'add'){
       if(type == 'art'){
-
-        /*
-        {
-          pfx: 'add',
-          type: 'art',
-          data: [
-            //resource: https://www.npmjs.com/package/dmxnet?activeTab=readme
-            {
-              subnet: 0,    //Destination universe, default 0
-              universe: 0,  //Destination universe, default 0
-              net: 0        //Destination universe, default 0
-            }
-          ]
-        }
-        */
-
-        var server = dmxnet.newReceiver(data[0])
-        server.on('data', dmx => {
-          wsClientList.forEach(c => {
-            c.client.send('/'+c.address, dmx)
-          })
+        var server = dmxnet.newReceiver(data[0]).on('data', dmx => {
+          wsClientList.forEach(c => { c.client.send(dmx) })
         })
         artnetServerList.push({
           client: server,
-          ooptions: msg.data[0]
+          options: data[0]
         })
-      }else if(msg.type == 'ws'){
+      }else if(type == 'ws'){
 
         /*
         {
           pfx: 'add',
           type: 'ws',
           data: [
-            'x.x.x.x',  //host
-            0000,       //port
-            'yyy'       //address
+            'x.x.x.x:0000/yyy'  //uri to send
           ]
         }
         */
-        var wsc = new WebSocketServer({
-          
-        })
+
+        var wsc = new WebSocket()
+        wsClientList.push(wsc)
       }
     }
     if(msg.pfx == 'remove'){
