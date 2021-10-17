@@ -42,7 +42,7 @@ var wsClientList = []
  * @returns {String} sart
  */
 const sart = dmx => {
-  return ''
+  return dmx
 }
 
 wss.on('connection', (ws, req) => {
