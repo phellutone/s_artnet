@@ -13,15 +13,12 @@ const wss = new WebSocketServer({ server: httpServer})
 
 var dmxlib = require('dmxnet')
 var dmxnet = new dmxlib.dmxnet({
-  log: {
-    level: 'info'
-  },
-  oem: 0,
+  log: { level: 'info' },
+  listen: 6454,
+  oem: 0x2908,
   sName: 'artnet receiver',
   lName: 'artnet receiver',
-  hosts: [
-    HOST
-  ]
+  hosts: [ HOST ]
 })
 
 /**
