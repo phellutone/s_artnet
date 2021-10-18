@@ -28,7 +28,7 @@ var dmxnet = new dmxlib.dmxnet({
  * Art-Net receive server list
  * @type {Array<{ client: dmxlib.receiver, options: dmxlib.ReceiverOptions }>}
  */
-var artnetServerList = []
+var anServerList = []
 
 /**
  * WebSocket client list
@@ -97,7 +97,7 @@ wss.on('connection', (ws, req) => {
           let _sart = sart(dmx)
           wsClientList.forEach(c => { c.client.send(_sart) })
         })
-        artnetServerList.push({
+        anServerList.push({
           client: ans,
           options: data[0]
         })
@@ -112,9 +112,11 @@ wss.on('connection', (ws, req) => {
     }
     if(pfx == 'remove'){
       if(type == 'art'){
-        artnetServerList = artnetServerList.filter(c => c.options != data[0])
+        console.log('remove art')
+        anServerList = anServerList.filter(c => c.options != data[0])
       }else if(type == 'ws'){
-        wsClientList = wsClientList.filter(c => c.address != data[0] )
+        console.log('remove ws')
+        wsClientList = wsClientList.filter(c => c.address != data[0])
       }
     }
   })
