@@ -78,6 +78,7 @@ const eq = (a, b) => {
 
 wss.on('connection', (ws, req) => {
   console.log(`connected ${req.socket.remoteAddress}:${req.socket.remotePort} > ${req.socket.localAddress}:${req.socket.localPort}${req.url}`)
+  
   ws.on('open', () => console.log('open'))
 
   ws.on('message', (RawData, isBinary) => {
