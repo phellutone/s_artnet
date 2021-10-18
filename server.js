@@ -38,10 +38,21 @@ var wsClientList = []
 
 /**
  * convert dmx to string format sart
- * @param {} dmx 
+ * @param {Array<Number>} dmx dmx
  * @returns {String} sart
  */
 const sart = dmx => {
+  /**
+   * support functions
+   *  dimmer: d
+   *  red:    r
+   *  green:  g
+   *  blue:   b
+   *  pan:    p
+   *  tilt:   t
+   * 
+   * 
+   */
   return dmx
 }
 
@@ -81,9 +92,6 @@ wss.on('connection', (ws, req) => {
       if(type == 'art'){
         console.log('add art')
         let ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
-          //debug
-          ws.send(JSON.stringify(dmx))
-          console.log(dmx)
           wsClientList.forEach(c => { c.client.send(sart(dmx)) })
         })
         artnetServerList.push({
