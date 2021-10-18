@@ -53,7 +53,9 @@ const sart = dmx => {
    * 
    * 
    */
-  return dmx
+  let sart = JSON.stringify(dmx)
+  console.log(sart)
+  return sart
 }
 
 wss.on('connection', (ws, req) => {
