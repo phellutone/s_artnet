@@ -48,30 +48,54 @@
         document.getElementById("msg").innerHTML = JSON.parse(event.data)
       }
 
-      document.getElementById("add").addEventListener("click", () => {
-        var host = document.getElementById("host").value
-        var port = document.getElementById("port").value
-        var address = document.getElementById("address").value
-        var subnet = document.getElementById("subnet").value
-        var universe = document.getElementById("universe").value
-        var net = document.getElementById("net").value
-        var type = document.getElementById("type").value
+      const correct = pfx => {
+        host = document.getElementById("host").value
+        port = document.getElementById("port").value
+        address = document.getElementById("address").value
+        net = document.getElementById("net").value
+        subnet = document.getElementById("subnet").value
+        universe = document.getElementById("universe").value
+        type = document.getElementById("type").value
 
-        var data = []
-        if(type == "ws"){
-          data.push(host+":"+port+"/"+address)
-        }else if(type == "art"){
-          data.push({
-            subnet: parseInt(subnet),
-            universe: parseInt(universe),
-            net: parseInt(net),
-          })
+        uri = host+":"+port+"/"+address,
+        options = {
+          net: parseInt(net),
+          subnet: parseInt(subnet),
+          universe: parseInt(universe)
         }
+
+        ws.send(JSON.stringify({
+          pfx: pfx,
+          type: type,
+          data: [((type == "ws")? uri : options)]
+        }))
+      }
+
+      document.getElementById("add").addEventListener("click", () => {
+        const {
+          type,
+          wsd,
+          and
+        } = correct()
 
         ws.send(JSON.stringify({
           pfx: "add",
           type: type,
-          data: data
+          data: (type == "ws")? wsd : and
+        }))
+      })
+
+      document.getElementById("remove").addEventListener("click", (th, _) => {
+        const {
+          type,
+          wsd,
+          and
+        } = correct()
+        this
+        ws.send(JSON.stringify({
+          pfx: "remove",
+          type: type,
+          data: (type == "ws")? wsd : and
         }))
       })
     </script>
