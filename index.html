@@ -64,40 +64,22 @@
           universe: parseInt(universe)
         }
 
+        let data = []
+        if(type == "ws"){
+          data.push(uri)
+        }else if(type == "art"){
+          data.push(options)
+        }
+
         ws.send(JSON.stringify({
           pfx: pfx,
           type: type,
-          data: [((type == "ws")? uri : options)]
+          data: data
         }))
       }
 
-      document.getElementById("add").addEventListener("click", () => {
-        const {
-          type,
-          wsd,
-          and
-        } = correct()
-
-        ws.send(JSON.stringify({
-          pfx: "add",
-          type: type,
-          data: (type == "ws")? wsd : and
-        }))
-      })
-
-      document.getElementById("remove").addEventListener("click", (th, _) => {
-        const {
-          type,
-          wsd,
-          and
-        } = correct()
-        this
-        ws.send(JSON.stringify({
-          pfx: "remove",
-          type: type,
-          data: (type == "ws")? wsd : and
-        }))
-      })
+      document.getElementById("add").addEventListener("click", () => correct("add"))
+      document.getElementById("remove").addEventListener("click", () => correct("remove"))
     </script>
   </body>
 </html>
