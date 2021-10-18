@@ -94,7 +94,8 @@ wss.on('connection', (ws, req) => {
       if(type == 'art'){
         console.log('add art')
         let ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
-          wsClientList.forEach(c => { c.client.send(sart(dmx)) })
+          let sart = sart(dmx)
+          wsClientList.forEach(c => { c.client.send(sart) })
         })
         artnetServerList.push({
           client: ans,
