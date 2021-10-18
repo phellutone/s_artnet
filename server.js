@@ -112,7 +112,7 @@ wss.on('connection', (ws, req) => {
     }
     if(pfx == 'remove'){
       if(type == 'art'){
-        //TODO
+        artnetServerList = artnetServerList.filter(c => c.options != data[0])
       }else if(type == 'ws'){
         wsClientList = wsClientList.filter(c => c.address != data[0] )
       }
