@@ -33,6 +33,14 @@ var anServerList = []
  */
 var wsClientList = []
 
+const dmxpipeline = dmx => {
+  let _sart = sart(dmx)
+  wsClientList.forEach(({client}) => {
+    if(client.readyState != WebSocket.OPEN) return
+    client.send(_sart)
+  })
+}
+
 /**
  * convert dmx to string format sart
  * @param {Array<Number>} dmx dmx
@@ -55,9 +63,21 @@ const sart = dmx => {
   return sart
 }
 
-wss.on('connection', (ws, req) => {
-  console.log('connected '+req.socket.remoteAddress)
+/**
+ * check equal
+ * @param {} a 
+ * @param {} b
+ * @returns {Boolean} 
+ */
+const eq = (a, b) => {
+  return Object.keys(a).every(k => {
+    if(!(k in b)) return false
+    return a[k] == b[k]
+  })
+}
 
+wss.on('connection', (ws, req) => {
+  console.log(`connected ${req.socket.remoteAddress}:${req.socket.remotePort} > ${req.socket.localAddress}:${req.socket.localPort}${req.url}`)
   ws.on('open', () => console.log('open'))
 
   ws.on('message', (RawData, isBinary) => {
@@ -90,17 +110,17 @@ wss.on('connection', (ws, req) => {
     if(pfx == 'add'){
       if(type == 'art'){
         console.log('add art')
-        let ans = dmxnet.newReceiver(data[0]).on('data', dmx => {
-          let _sart = sart(dmx)
-          wsClientList.forEach(c => { c.client.send(_sart) })
-        })
         anServerList.push({
-          client: ans,
+          client: dmxnet.newReceiver(data[0]).on('data', dmxpipeline),
           options: data[0]
         })
       }else if(type == 'ws'){
         console.log('add ws')
         let wsc = new WebSocket(new URL('ws://'+data[0]))
+        wsc.on('open', () => console.log('open'))
+        wsc.on('message', (rd, ib) => console.log(`rd: ${rd}, ib: ${ib}`))
+        wsc.on('error', err => console.log(err.message))
+        wsc.on('close', (c, r) => console.log(`c: ${c}, r: ${r}`))
         wsClientList.push({
           client: wsc,
           address: data[0]
@@ -110,7 +130,13 @@ wss.on('connection', (ws, req) => {
     if(pfx == 'remove'){
       if(type == 'art'){
         console.log('remove art')
-        anServerList = anServerList.filter(c => c.options != data[0])
+        let rt = anServerList.find(({ options }) => eq(options, data[0]))
+        if(!rt){
+          console.log('can not find')
+          return
+        }
+        rt.client.off('data', dmxpipeline)
+        anServerList = anServerList.filter(c => c != rt)
       }else if(type == 'ws'){
         console.log('remove ws')
         wsClientList = wsClientList.filter(c => c.address != data[0])
